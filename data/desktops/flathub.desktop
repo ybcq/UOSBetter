@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Flathub 应用商店
+GenericName=应用商店
+Comment=浏览并安装 Flathub 应用
+Exec=xdg-open https://flathub.org/zh-Hans
+Icon=deepin-app-store
+Terminal=false
+Type=Application
+Categories=Network;

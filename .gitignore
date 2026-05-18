@@ -1,0 +1,5 @@
+Copy2Projects.sh
+data/appImages/Steam.AppImage
+__pycache__/
+models/__pycache__/
+models/PySimpleGUI/__pycache__/

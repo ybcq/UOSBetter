@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=AppImage 应用商店
+GenericName=应用商店
+Comment=浏览并下载 AppImage 应用
+Exec=$HOME/.local/share/apps/AppImagePool.AppImage
+Icon=deepin-app-store
+Terminal=false
+Type=Application
+Categories=Network;

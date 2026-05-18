@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Steam
+GenericName=Steam
+Comment=Steam 游戏平台
+Exec=$HOME/.local/share/apps/Steam.AppImage
+Icon=steam
+Terminal=false
+Type=Application
+Categories=Game;
