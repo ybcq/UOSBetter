@@ -10,8 +10,12 @@ except ModuleNotFoundError:
     subprocess.run(["pip", "install", "pysimplegui-4-foss"])
     import models.PySimpleGUI as sg
 
-# 导入SteamImageUtils模块
-from models.SteamImageUtils import merge_appimage
+# 导入GetRelease模块
+from models.GetRelease import download_file_with_progress, format_size
+
+# 导入安装模块
+from models.InstallYPK import install_ypk, install_ypk_safe, uninstall_ypk, uninstall_ypk_safe
+from models.InstallTAR import install_tar_archive
 
 # 如果不是Windows，则加载这两个库
 if os.name != 'nt':
@@ -19,8 +23,12 @@ if os.name != 'nt':
     import grp
 
 APP_NAME = 'UOS系统优化大师'
-APP_VERSION = '1.0.0'
-UPDATE_LOG = """首次发布
+APP_VERSION = '1.1.0'
+UPDATE_LOG = """
+增加了TAR等格式的绿色软件的安装卸载功能
+Steam改为在线获取，大幅缩小软件体积
+
+V1.0.0
 部分功能支持Debian系的其他系统
 比如Ubuntu，GXDE，AnduinOS，Raspbian等
 """
@@ -46,7 +54,7 @@ tab1_layout = [
          sg.Button('还原', key='-RESTORE_DEFAULT_FM-')],
         [sg.Button('安装副屏App', key='-INSTALL_MULTI_SCREEN-'),
          sg.Button('安装多台电脑用同一套键鼠操控', key='-INSTALL_SHARED_INPUT-')],
-        [sg.Button('安装Steam便携版', key='-INSTALL_STEAM-'), sg.Text('可解决UOS安装Steam各种缺库弹窗')]
+        [sg.Button('安装Steam便携版', key='-INSTALL_STEAM-'), sg.Text('可解决UOS安装Steam各种缺库弹窗，需联网')]
     ], expand_x=True, expand_y=True)],
     
     [sg.Frame('应用商店', [
@@ -101,21 +109,38 @@ tab2_layout = [
 
 # 第三个标签页布局
 tab3_layout = [
-    [sg.Frame('开机启动', [
-        [sg.Text("服务名称:"), sg.Input(key="-SV_NAME-", size=(30, 1))],
-        [sg.Text("执行命令:"), sg.Input(key="-SV_COMMAND-", size=(30, 1)),
-        sg.FileBrowse(button_text="浏览", target="-SV_COMMAND-")],
-        [sg.Text("重启间隔:"), sg.Input(default_text="0", key="-SV_RESTART-", size=(30, 1))],
-        [sg.Button("创建", key="-CREATE_SERVICE-")],
-        [sg.Button("手动编辑文件", key="-EDIT_SERVICE_FILE-"),
-        sg.Button("手动启动服务", key="-START_SERVICE-"),
-        sg.Button("读取日志", key="-READ_LOG-")],
-        [sg.Button("管理开机启动", key="-MANAGE_SERVICE-")]
-    ], expand_x=True, expand_y=True),
-    sg.Frame('其他功能', [
-        [sg.Button("设置安卓应用打开样式", key="-SET_ANDROID_APP_STYLE-")],
-        [sg.Text("其他尚在开发中...")]
-    ], expand_x=True, expand_y=True)]
+    [
+        # 左侧大框
+        sg.Frame('开机启动', [
+            [sg.Text("服务名称:"), sg.Input(key="-SV_NAME-", size=(30, 1))],
+            [sg.Text("执行命令:"), sg.Input(key="-SV_COMMAND-", size=(30, 1)),
+             sg.FileBrowse(button_text="浏览", target="-SV_COMMAND-")],
+            [sg.Text("重启间隔:"), sg.Input(default_text="0", key="-SV_RESTART-", size=(30, 1))],
+            [sg.Button("创建", key="-CREATE_SERVICE-")],
+            [sg.Button("手动编辑文件", key="-EDIT_SERVICE_FILE-"),
+             sg.Button("手动启动服务", key="-START_SERVICE-"),
+             sg.Button("读取日志", key="-READ_LOG-")],
+            [sg.Button("管理开机启动", key="-MANAGE_SERVICE-")]
+        ], expand_x=True, expand_y=True, size=(None, None)),
+        
+        # 右侧上下两个框
+        sg.Column([
+            # 上框
+            [sg.Frame('便捷安装', [
+                [sg.Text("支持YPK、TAR、TAR.GZ、TAR.BZ2格式安装")],
+                [sg.Text("安装路径:"), sg.Input(key="-YPK_PATH-", size=(30, 1)), 
+                 sg.FileBrowse(button_text="浏览", target="-YPK_PATH-")],
+                [sg.Checkbox("隔离模式", key="-YPK_ISOLATE-", default=True)], 
+                [sg.Button("安装", key="-INSTALL_YPK-"), sg.Button("卸载", key="-UNINSTALL_YPK-")]
+            ], expand_x=True, expand_y=True)],
+            
+            # 下框
+            [sg.Frame('其他功能', [
+                [sg.Button("设置安卓应用打开样式", key="-SET_ANDROID_APP_STYLE-")],
+                [sg.Text("其他尚在开发中...")],
+            ], expand_x=True, expand_y=True)]
+        ], expand_x=True, expand_y=True, vertical_alignment='top')
+    ]
 ]
 
 # 主窗口布局
@@ -330,55 +355,49 @@ def install_shared_input():
     # 打开Barrier配置界面
     execute_command("barrier")
 
+
+def download_steam_appimage(output_path, progress_callback=None):
+    """
+    下载Steam AppImage最新版本
+    
+    Args:
+        output_path: 输出文件路径
+        progress_callback: 进度回调函数
+        
+    Returns:
+        bool: 下载是否成功
+    """
+    # GitHub Steam AppImage 下载链接
+    steam_url = "https://github.com/ivan-hc/Steam-appimage/releases/download/1.0.0.85-6%402026-05-01_1777622844/Steam-1.0.0.85-6-anylinux-x86_64.AppImage"
+    
+    return download_file_with_progress(steam_url, output_path, progress_callback=progress_callback)
+
 # 安装Steam虚拟环境版
 def install_steam():
     window['-LOG-'].print('执行: 安装Steam虚拟环境版')
     home = get_real_home()
     desktop_dir = get_desktop_dir()
     
-    # 检查是否存在分割的文件
-    steam_parts = [
-        "data/appImages/Steam.AppImage_1",
-        "data/appImages/Steam.AppImage_2",
-        "data/appImages/Steam.AppImage_3"
-    ]
+    # 设置下载进度回调函数
+    def steam_download_progress(downloaded, total, percent):
+        downloaded_str = format_size(downloaded)
+        total_str = format_size(total)
+        window['-LOG-'].print(f'下载进度: {downloaded_str} / {total_str} ({percent:.2f}%)')
+        window.refresh()
     
-    # 如果存在分割文件，先合并
-    if all(os.path.exists(part) for part in steam_parts):
-        window['-LOG-'].print('检测到分割文件，正在合并...')
-        steam_target = f"{home}/.local/share/apps/Steam.AppImage"
-        
-        # 删除可能存在的旧文件
-        if os.path.exists(steam_target):
-            os.remove(steam_target)
-        
-        # 使用import方式调用合并函数
-        try:
-            import sys
-            import os
-            # 获取当前脚本所在目录
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            # 添加models目录到Python路径
-            models_dir = os.path.join(current_dir, 'models')
-            if models_dir not in sys.path:
-                sys.path.insert(0, models_dir)
-            
-            # 执行合并
-            success = merge_appimage(steam_parts, steam_target)
-            
-            if success:
-                window['-LOG-'].print('✓ Steam.AppImage合并成功')
-            else:
-                window['-LOG-'].print('✗ Steam.AppImage合并失败')
-                return
-        except Exception as e:
-            window['-LOG-'].print(f'✗ 合并失败: {str(e)}')
-            return
-    else:
-        # 直接复制原始文件
-        window['-LOG-'].print('使用原始Steam.AppImage文件')
-        execute_command(f"cp data/appImages/Steam.AppImage {home}/.local/share/apps/")
-
+    # 下载Steam AppImage
+    steam_target = f"{home}/.local/share/apps/Steam.AppImage"
+    window['-LOG-'].print('开始从GitHub下载Steam AppImage...')
+    
+    success = download_steam_appimage(steam_target, progress_callback=steam_download_progress)
+    
+    if not success:
+        window['-LOG-'].print('✗ Steam.AppImage下载失败')
+        sg.popup_error('Steam AppImage下载失败！请检查网络连接。', title='错误')
+        return
+    
+    window['-LOG-'].print('✓ Steam.AppImage下载成功')
+    
     # chmod +x
     steam_path = f"{home}/.local/share/apps/Steam.AppImage"
     execute_command(f"chmod +x {steam_path}")
@@ -757,6 +776,102 @@ def manage_services():
 def set_android_app_style():
     # 管理员身份打开/usr/share/uengine/appetc/
     subprocess.Popen(["xdg-open", "/usr/share/uengine/appetc/"])
+
+# 安装YPK或TAR包
+def install_package():
+    package_path = values["-YPK_PATH-"]
+    isolate_mode = values["-YPK_ISOLATE-"]
+    
+    if not package_path:
+        sg.popup_error("请选择要安装的软件包！", title="错误")
+        return False
+    
+    if not os.path.exists(package_path):
+        sg.popup_error(f"文件不存在：{package_path}", title="错误")
+        return False
+    
+    window['-LOG-'].print(f"开始安装：{package_path}")
+    
+    try:
+        # 判断文件类型
+        if package_path.lower().endswith('.ypk'):
+            window['-LOG-'].print("检测到YPK格式软件包")
+            
+            if isolate_mode:
+                window['-LOG-'].print("使用隔离模式（虚拟环境）安装")
+                result = install_ypk_safe(package_path)
+            else:
+                window['-LOG-'].print("使用LOCAL模式安装")
+                result = install_ypk(package_path)
+                
+        elif package_path.lower().endswith(('.tar', '.tar.gz', '.tar.bz2', '.tgz', '.tbz2')):
+            window['-LOG-'].print("检测到TAR格式软件包")
+            result = install_tar_archive(package_path)
+        else:
+            sg.popup_error("不支持的文件格式！\n支持的格式：YPK、TAR、TAR.GZ、TAR.BZ2", title="错误")
+            return False
+        
+        if result:
+            sg.popup_ok("安装成功！", title="成功")
+            window['-LOG-'].print("✓ 安装成功")
+        else:
+            sg.popup_error("安装失败！请查看日志详细信息。", title="错误")
+            window['-LOG-'].print("✗ 安装失败")
+            
+        return result
+        
+    except Exception as e:
+        error_msg = f"安装过程出错：{str(e)}"
+        window['-LOG-'].print(f"✗ {error_msg}")
+        sg.popup_error(error_msg, title="错误")
+        return False
+
+# 卸载YPK包
+def uninstall_package():
+    package_path = values["-YPK_PATH-"]
+    isolate_mode = values["-YPK_ISOLATE-"]
+    
+    if not package_path:
+        sg.popup_error("请选择要卸载的软件包！", title="错误")
+        return False
+    
+    if not os.path.exists(package_path):
+        sg.popup_error(f"文件不存在：{package_path}", title="错误")
+        return False
+    
+    # 确认卸载操作
+    if not package_path.lower().endswith('.ypk'):
+        sg.popup_error("仅支持YPK格式软件包的卸载！\nTAR格式软件包请手动删除。", title="错误")
+        return False
+    
+    confirm = sg.popup_yes_no(f"确定要卸载软件包吗？\n{package_path}", title="确认卸载")
+    if confirm != "Yes":
+        return False
+    
+    window['-LOG-'].print(f"开始卸载：{package_path}")
+    
+    try:
+        if isolate_mode:
+            window['-LOG-'].print("使用隔离模式（虚拟环境）卸载")
+            result = uninstall_ypk_safe(package_path)
+        else:
+            window['-LOG-'].print("使用LOCAL模式卸载")
+            result = uninstall_ypk(package_path)
+        
+        if result:
+            sg.popup_ok("卸载成功！", title="成功")
+            window['-LOG-'].print("✓ 卸载成功")
+        else:
+            sg.popup_error("卸载失败！请查看日志详细信息。", title="错误")
+            window['-LOG-'].print("✗ 卸载失败")
+            
+        return result
+        
+    except Exception as e:
+        error_msg = f"卸载过程出错：{str(e)}"
+        window['-LOG-'].print(f"✗ {error_msg}")
+        sg.popup_error(error_msg, title="错误")
+        return False
     # execute_command("xdg-open /usr/share/uengine/appetc/")
 
 def show_about_window(APP_NAME, APP_VERSION, UPDATE_LOG):
@@ -787,8 +902,9 @@ def show_about_window(APP_NAME, APP_VERSION, UPDATE_LOG):
     about_window.close()
 
 # 验证管理员权限
-if os.geteuid() != 0:
-    sg.popup("请用 'sudo python3 UOSBetter.py' 命令打开\n否则大部分功能受限", title="权限提示")
+if os.name != 'nt':
+    if os.geteuid() != 0:
+        sg.popup("请用 'sudo python3 UOSBetter.py' 命令打开\n否则大部分功能受限", title="权限提示")
 
 # 创建窗口
 window = sg.Window(APP_NAME + ' ' + APP_VERSION, layout, resizable=False, finalize=True)
@@ -925,6 +1041,13 @@ while True:
     
     if event == "-SET_ANDROID_APP_STYLE-":
         set_android_app_style()
+    
+    # 便捷安装功能
+    if event == '-INSTALL_YPK-':
+        install_package()
+    
+    if event == '-UNINSTALL_YPK-':
+        uninstall_package()
     
     # 示例：点击关于按钮
     if event == '-ABOUT-':
