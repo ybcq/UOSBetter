@@ -23,8 +23,13 @@ if os.name != 'nt':
     import grp
 
 APP_NAME = 'UOS系统优化大师'
-APP_VERSION = '1.1.0'
+APP_VERSION = '1.2.0'
 UPDATE_LOG = """
+修复了创建的图标启动目录为桌面的问题
+主题中增加了压缩包和NEMO的图标
+修改复制操作的原文件为绝对地址
+
+V1.1.0
 增加了TAR等格式的绿色软件的安装卸载功能
 Steam改为在线获取，大幅缩小软件体积
 
@@ -290,8 +295,10 @@ def add_flat_store_icon():
     home = get_real_home()
     desktop_dir = get_desktop_dir()
     # 复制data/flatpak.desktop到用户本地applications/ 和 桌面
-    execute_command(f"cp data/desktops/flatpak.desktop {home}/.local/share/applications/")
-    execute_command(f"cp data/desktops/flatpak.desktop {desktop_dir}/")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    flatpak_desktop = os.path.join(script_dir, 'data', 'desktops', 'flatpak.desktop')
+    execute_command(f"cp {flatpak_desktop} {home}/.local/share/applications/")
+    execute_command(f"cp {flatpak_desktop} {desktop_dir}/")
     # chmod +x
     execute_command(f"chmod +x {home}/.local/share/applications/flatpak.desktop")
     execute_command(f"chmod +x {desktop_dir}/flatpak.desktop")
@@ -301,13 +308,16 @@ def add_appimage_store_icon():
     window['-LOG-'].print('执行: 添加AppImage应用商店图标')
     home = get_real_home()
     desktop_dir = get_desktop_dir()
-    execute_command(f"cp data/appImages/AppImagePool.AppImage {home}/.local/share/apps/")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    appimage_pool = os.path.join(script_dir, 'data', 'appImages', 'AppImagePool.AppImage')
+    execute_command(f"cp {appimage_pool} {home}/.local/share/apps/")
     # chmod +x
     execute_command(f"chmod +x {home}/.local/share/apps/AppImagePool.AppImage")
 
     # 复制data/appimage.desktop到用户本地applications/ 和 桌面
-    execute_command(f"cp data/desktops/appimage.desktop {home}/.local/share/applications/")
-    execute_command(f"cp data/desktops/appimage.desktop {desktop_dir}/")
+    appimage_desktop = os.path.join(script_dir, 'data', 'desktops', 'appimage.desktop')
+    execute_command(f"cp {appimage_desktop} {home}/.local/share/applications/")
+    execute_command(f"cp {appimage_desktop} {desktop_dir}/")
     # chmod +x
     execute_command(f"chmod +x {home}/.local/share/applications/appimage.desktop")
     execute_command(f"chmod +x {desktop_dir}/appimage.desktop")
@@ -403,8 +413,10 @@ def install_steam():
     execute_command(f"chmod +x {steam_path}")
 
     # 为它创建桌面图标和开始菜单图标
-    execute_command(f"cp data/desktops/steam.desktop {home}/.local/share/applications/")
-    execute_command(f"cp data/desktops/steam.desktop {desktop_dir}/")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    steam_desktop = os.path.join(script_dir, 'data', 'desktops', 'steam.desktop')
+    execute_command(f"cp {steam_desktop} {home}/.local/share/applications/")
+    execute_command(f"cp {steam_desktop} {desktop_dir}/")
 
 # 设置亮度按钮
 def set_brightness():
@@ -422,12 +434,13 @@ def add_uosbetter_desktop_icon():
     
     # 准备图标路径（使用系统默认图标或自定义图标）
     # 这里使用一个通用的应用图标
-    icon_name = "applications-system"
+    icon_name = "preferences-system"
     
     # 构造.desktop内容
     desktop_content = f"""[Desktop Entry]
 Name=UOS系统优化大师
 Exec=sudo -E python3 {script_path}
+Path={os.path.dirname(script_path)}
 Icon={icon_name}
 Terminal=true
 Type=Application
@@ -553,6 +566,7 @@ def create_shortcut(values):
     desktop_content = f"""[Desktop Entry]
 Name={name}
 Exec={exec_prefix} {exec_path} {args}
+Path={os.path.dirname(exec_path)}
 Icon={icon_name}
 Terminal=false
 Type=Application
@@ -624,6 +638,7 @@ Profiles=profile-zero;
 MimeTypes={mime_types}
 Name=Default profile
 Exec={command} %F
+Path={os.path.dirname(command)}
 Icon={icon_name}
 """
 

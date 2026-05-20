@@ -208,11 +208,18 @@ UOSBetter/
 
 ## 🔄 更新日志
 
+### v1.2.0
+- 修复了创建的图标启动目录为桌面的问题
+- 主题中增加了压缩包和NEMO的图标
+- 修改复制操作的原文件为绝对地址
+
+### v1.1.0
+- 新增 YPK 和 TAR 软件包管理功能
+- 新增 GitHub releases 在线下载功能
+
 ### v1.0.0
 - 首次发布
 - 支持 Debian 系的其他系统（如 Ubuntu、GXDE、AnduinOS、Raspbian 等）
-- 新增 YPK 和 TAR 软件包管理功能
-- 新增 GitHub releases 在线下载功能
 - 完善的虚拟环境支持和安全机制
 
 ## 🤝 贡献
