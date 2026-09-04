@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "开始安装 Deepin-Wine"
-sudo apt install -y deepin-wine
-echo "Deepin-Wine 安装成功！"
+echo "开始安装 Wine"
+sudo apt install -y wine
+echo "Wine 安装成功！"
 
 echo "正在安装 Wine 常用字体..."
 sudo apt install -y fonts-wine
@@ -15,20 +15,19 @@ winetricks fakechinese
 echo "中文字体映射修复完成！"
 
 echo "正在创建打开方式链接..."
-filepath="/usr/share/applications/Deepin-Wine.desktop"
+filepath="/usr/share/applications/Wine.desktop"
 sudo rm -f $filepath
 sudo cat > $filepath <<EOF
 [Desktop Entry]
 Categories=System;
 Comment=用于打开EXE
 Encoding=UTF-8
-Exec=deepin-wine %U
-Icon=deepin-wine-assist
+Exec=wine %U
+Icon=wine
 MimeType=exe
-Name=Deepin-Wine
-StartupWMClass=Deepin-Wine
+Name=Wine
+StartupWMClass=Wine
 Terminal=false
 Type=Application
-X-Deepin-Vendor=user-custom
 EOF
-echo "Deepin-Wine 打开方式链接创建成功！"
+echo "Wine 打开方式链接创建成功！"

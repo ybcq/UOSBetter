@@ -23,8 +23,16 @@ if os.name != 'nt':
     import grp
 
 APP_NAME = 'UOS系统优化大师'
-APP_VERSION = '1.2.0'
+APP_VERSION = '1.3.0'
 UPDATE_LOG = """
+V1.3.0
+修改带目录的文件管理器为PCManFM
+增加挂载Wine的C盘为盘符功能
+增加系统盘显示为Windows风格文件夹的功能
+双击打开.exe文件支持选择安装Deepin-Wine或Wine
+安装Wine时自动安装常用字体
+
+V1.2.0
 修复了创建的图标启动目录为桌面的问题
 主题中增加了压缩包和NEMO的图标
 修改复制操作的原文件为绝对地址
@@ -54,6 +62,8 @@ tab1_layout = [
     sg.Frame('组件', [
         [sg.Button('双击打开.exe文件', key='-SET_EXE_HANDLER-'),
          sg.Button('双击安装.apk文件', key='-SET_APK_HANDLER-')],
+        [sg.Button('挂载Wine的C盘为盘符', key='-SET_WINE_C-'),
+         sg.Button('解除挂载', key='-UNSET_WINE_C-')],
         [sg.Button('安装有目录树的文件管理器', key='-INSTALL_TREE_FM-'),
          sg.Button('替换为默认文件管理器', key='-SET_DEFAULT_FM-'),
          sg.Button('还原', key='-RESTORE_DEFAULT_FM-')],
@@ -65,13 +75,15 @@ tab1_layout = [
     [sg.Frame('应用商店', [
         [sg.Button('安装星火应用商店', key='-INSTALL_SPARK_STORE-'),
          sg.Button('替换PIP为清华源', key='-SET_PIP_SOURCE-')],
-        [sg.Button('添加Flat应用商店图标', key='-ADD_FLAT_STORE-'), sg.Button('安装AppImage应用商店', key='-ADD_APPIMAGE_STORE-'),
-         sg.Text('使用便携版应用更安全')],
+        [sg.Button('添加Flat应用商店图标', key='-ADD_FLAT_STORE-'), sg.Button('安装AppImage应用商店', key='-ADD_APPIMAGE_STORE-')],
+        [sg.Text('使用便携版应用更安全')],
     ], expand_x=True, expand_y=True),
     
     sg.Frame('美化', [
         [sg.Button('安装Windows主题', key='-INSTALL_WIN_THEME-'),
          sg.Button('安装Windows字体', key='-INSTALL_WIN_FONTS-')],
+        [sg.Button('挂载Windows风格的系统盘盘符', key='-SET_WIN_DISK-'),
+         sg.Button('解除挂载', key='-UNSET_WIN_DISK-')],
         [sg.Button('安装遮罩亮度调节', key='-INSTALL_BRIGHTNESS-')],
     ], expand_x=True, expand_y=True)],
     
@@ -251,12 +263,18 @@ def unlock_disk_restriction():
 # 设置双击打开.exe文件
 def set_exe_handler():
     window['-LOG-'].print('执行: 设置双击打开.exe文件')
-    # chmod +x
-    execute_command("chmod +x data/scripts/Deepin-Wine.sh")
-    # 执行install_wine.sh脚本
-    execute_command("bash data/scripts/Deepin-Wine.sh")
-    # 弹窗提示用户：找一个exe文件，右键，选择默认程序，找到Deepin-Wine，确定
-    sg.popup("请找一个exe文件 -> 右键 -> 选择默认程序 -> 找到Deepin-Wine -> 确定", title="设置默认程序")
+    # 弹窗让用户选择安装哪种Wine
+    choice = sg.popup_yes_no("请选择要安装的Wine版本：\n\n是(Y) - 安装 Deepin-Wine（更现代）\n否(N) - 安装 Wine（兼容性更好）", title="选择Wine版本")
+    if choice == "Yes":
+        # 安装Deepin-Wine
+        execute_command("chmod +x data/scripts/Deepin-Wine.sh")
+        execute_command("bash data/scripts/Deepin-Wine.sh")
+        sg.popup("请找一个exe文件 -> 右键 -> 选择默认程序 -> 找到Deepin-Wine -> 确定", title="设置默认程序")
+    elif choice == "No":
+        # 安装普通Wine
+        execute_command("chmod +x data/scripts/Wine.sh")
+        execute_command("bash data/scripts/Wine.sh")
+        sg.popup("请找一个exe文件 -> 右键 -> 选择默认程序 -> 找到Wine -> 确定", title="设置默认程序")
 
 # 设置双击打开.apk文件
 def set_apk_handler():
@@ -267,12 +285,12 @@ def set_apk_handler():
 # 安装有目录树的文件管理器
 def install_tree_file_manager():
     window['-LOG-'].print('执行: 安装有目录树的文件管理器')
-    execute_command("apt install -y nemo")
+    execute_command("apt install -y pcmanfm")
 
-# 替换nemo为默认文件管理器
+# 替换为默认文件管理器
 def set_default_file_manager():
     window['-LOG-'].print('执行: 替换为默认文件管理器')
-    execute_command("xdg-mime default nemo.desktop inode/directory")
+    execute_command("xdg-mime default pcmanfm.desktop inode/directory")
 
 # 还原默认文件管理器
 def restore_default_file_manager():
@@ -350,6 +368,42 @@ def install_mask_brightness():
     execute_command("apt install -y brightnessctl")
     # 弹窗提示
     sg.Popup('安装已完成，可通过右下方滚动条调节', title='遮罩亮度调节')
+
+# 挂载Wine的C盘为盘符
+def set_wine_c():
+    window['-LOG-'].print('执行: 挂载Wine的C盘为盘符')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    script_path = os.path.join(script_dir, 'data', 'scripts', 'Wine-Disk.sh')
+    execute_command(f"chmod +x {script_path}")
+    execute_command(f"bash {script_path}")
+
+# 卸载Wine的C盘
+def unset_wine_c():
+    window['-LOG-'].print('执行: 卸载Wine的C盘')
+    real_home = get_real_home()
+    username = os.environ.get('SUDO_USER', os.getenv('USER'))
+    mount_point = f"/media/{username}/Wine-C"
+    execute_command(f"umount {mount_point}")
+    window['-LOG-'].print('Wine-C 已卸载')
+
+# 挂载Windows风格的系统盘盘符
+def set_win_disk():
+    window['-LOG-'].print('执行: 挂载Windows风格的系统盘盘符')
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    script_path = os.path.join(script_dir, 'data', 'scripts', 'Win-Like.sh')
+    execute_command(f"chmod +x {script_path}")
+    execute_command(f"echo y | bash {script_path}")
+
+# 卸载Windows风格的系统盘
+def unset_win_disk():
+    window['-LOG-'].print('执行: 卸载Windows风格的系统盘')
+    real_home = get_real_home()
+    username = os.environ.get('SUDO_USER', os.getenv('USER'))
+    mount_point = f"/media/{username}/WinLike"
+    win_drive = f"{real_home}/WinLike"
+    execute_command(f"umount {mount_point}")
+    execute_command(f"rm -rf {win_drive}")
+    window['-LOG-'].print('Windows风格磁盘已卸载并清理')
 
 # 安装副屏App
 def install_multi_screen_app():
@@ -971,6 +1025,14 @@ while True:
         install_win_fonts()
     elif event == '-INSTALL_BRIGHTNESS-':
         install_mask_brightness()
+    elif event == '-SET_WINE_C-':
+        set_wine_c()
+    elif event == '-UNSET_WINE_C-':
+        unset_wine_c()
+    elif event == '-SET_WIN_DISK-':
+        set_win_disk()
+    elif event == '-UNSET_WIN_DISK-':
+        unset_win_disk()
     
     # 其他常用区域
     elif event == '-INSTALL_MULTI_SCREEN-':

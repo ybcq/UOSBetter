@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.6+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-UOS%20%7C%20Ubuntu%20%7C%20Debian-red.svg)
@@ -13,6 +13,17 @@
 
 </div>
 
+## 📸 界面预览
+
+### 标签页1：安全优化与组件
+![安全优化与组件](pictures/MainTab1.png)
+
+### 标签页2：桌面与菜单
+![桌面与菜单](pictures/MainTab2.png)
+
+### 标签页3：系统级自启服务
+![系统级自启服务](pictures/MainTab3.png)
+
 ## ✨ 功能特性
 
 ### 🔒 安全与组件
@@ -21,10 +32,20 @@
 - **文件关联设置**：
   - 双击直接打开 `.exe` 文件（基于 Deepin-Wine）
   - 双击直接安装 `.apk` 文件（基于 UEngine）
-- **文件管理器增强**：安装带目录树的 Nemo 文件管理器
 - **多屏支持**：安装副屏应用（SpaceDesk）
 - **键鼠共享**：安装 Barrier 实现多电脑共享键鼠
 - **游戏支持**：安装 Steam 便携版，解决缺库问题
+- **Wine磁盘管理**：将 Wine C 盘挂载为虚拟磁盘，方便文件访问
+
+  ![Wine磁盘](pictures/WineDisk.png)
+
+- **Windows风格磁盘**：将系统目录映射为 Windows 风格的磁盘结构
+
+  ![Windows风格磁盘](pictures/WinLike.png)
+
+- **文件管理器增强**：安装带目录树的 PCManFM 文件管理器
+
+  ![文件管理器目录树](pictures/FileTree.png)
 
 ### 🏪 应用商店
 - **星火应用商店**：一键安装星火应用商店
@@ -34,7 +55,12 @@
 
 ### 🎨 美化定制
 - **Windows主题**：安装 Windows 11 风格主题
+
+  ![Windows图标效果](pictures/WinIcon1.png)
+  ![更具辨识度的文件类型图标](pictures/WinIcon2.png)
+
 - **Windows字体**：安装微软雅黑等常用字体
+
 - **亮度调节**：安装遮罩亮度调节工具
 
 ### 🖥️ 桌面与菜单
@@ -179,7 +205,9 @@ UOSBetter/
 │   │   ├── APT-Deepin20.sh
 │   │   ├── APT-TsingHua.sh
 │   │   ├── APT-UOS20.sh
-│   │   └── Deepin-Wine.sh
+│   │   ├── Deepin-Wine.sh
+│   │   ├── Win-Like.sh
+│   │   └── Wine-Disk.sh
 │   └── themes/              # 主题文件
 │       └── win11theme.tar
 ├── .venv/                   # Python 虚拟环境
@@ -207,6 +235,12 @@ UOSBetter/
 - **特性**：进度回调、错误恢复、断点续传、文件大小人性化显示
 
 ## 🔄 更新日志
+
+### v1.3.0
+- 修改带目录的文件管理器为 PCManFM（原 Nemo）
+- 增加挂载 Wine 的 C 盘为盘符功能
+- 增加系统盘显示为 Windows 风格文件夹的功能
+- 增加 Wine C 盘和 Windows 风格磁盘的卸载功能
 
 ### v1.2.0
 - 修复了创建的图标启动目录为桌面的问题
