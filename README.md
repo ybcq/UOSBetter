@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.6+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-UOS%20%7C%20Ubuntu%20%7C%20Debian-red.svg)
@@ -43,7 +43,7 @@
 
   ![Windows风格磁盘](pictures/WinLike.png)
 
-- **文件管理器增强**：安装带目录树的 PCManFM 文件管理器
+- **文件管理器增强**：安装带目录树的 Thunar 文件管理器
 
   ![文件管理器目录树](pictures/FileTree.png)
 
@@ -199,15 +199,16 @@ UOSBetter/
 │   │   └── AppImagePool.AppImage
 │   ├── desktops/            # 桌面快捷方式
 │   │   ├── appimage.desktop
-│   │   ├── flathub.desktop
+│   │   ├── flatpak.desktop
 │   │   └── steam.desktop
 │   ├── scripts/             # 安装脚本
 │   │   ├── APT-Deepin20.sh
 │   │   ├── APT-TsingHua.sh
 │   │   ├── APT-UOS20.sh
 │   │   ├── Deepin-Wine.sh
-│   │   ├── Win-Like.sh
-│   │   └── Wine-Disk.sh
+│   │   ├── Wine-Disk.sh
+│   │   ├── Wine.sh
+│   │   └── Win-Like.sh
 │   └── themes/              # 主题文件
 │       └── win11theme.tar
 ├── .venv/                   # Python 虚拟环境
@@ -235,6 +236,10 @@ UOSBetter/
 - **特性**：进度回调、错误恢复、断点续传、文件大小人性化显示
 
 ## 🔄 更新日志
+
+### v1.4.0
+- 修改带目录的文件管理器为 Thunar
+- 进一步补全 Win11 主题的图标，提升在 XFCE 上的兼容性
 
 ### v1.3.0
 - 修改带目录的文件管理器为 PCManFM（原 Nemo）

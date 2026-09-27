@@ -23,8 +23,12 @@ if os.name != 'nt':
     import grp
 
 APP_NAME = 'UOS系统优化大师'
-APP_VERSION = '1.3.0'
+APP_VERSION = '1.4.0'
 UPDATE_LOG = """
+V1.4.0
+修改带目录的文件管理器为thunar
+进一步补全Win11主题的图标，提升在XFCE上的兼容性
+
 V1.3.0
 修改带目录的文件管理器为PCManFM
 增加挂载Wine的C盘为盘符功能
@@ -285,12 +289,12 @@ def set_apk_handler():
 # 安装有目录树的文件管理器
 def install_tree_file_manager():
     window['-LOG-'].print('执行: 安装有目录树的文件管理器')
-    execute_command("apt install -y pcmanfm")
+    execute_command("apt install -y thunar")
 
 # 替换为默认文件管理器
 def set_default_file_manager():
     window['-LOG-'].print('执行: 替换为默认文件管理器')
-    execute_command("xdg-mime default pcmanfm.desktop inode/directory")
+    execute_command("xdg-mime default thunar.desktop inode/directory")
 
 # 还原默认文件管理器
 def restore_default_file_manager():
