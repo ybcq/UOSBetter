@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.6+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-UOS%20%7C%20Ubuntu%20%7C%20Debian-red.svg)
@@ -236,6 +236,10 @@ UOSBetter/
 - **特性**：进度回调、错误恢复、断点续传、文件大小人性化显示
 
 ## 🔄 更新日志
+
+### v1.5.0
+- 修复带目录的文件管理器设置为默认文件管理器后，无法打开的问题
+- 删除部分图标，提升在 XFCE 上的兼容性
 
 ### v1.4.0
 - 修改带目录的文件管理器为 Thunar

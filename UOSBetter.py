@@ -23,8 +23,12 @@ if os.name != 'nt':
     import grp
 
 APP_NAME = 'UOS系统优化大师'
-APP_VERSION = '1.4.0'
+APP_VERSION = '1.5.0'
 UPDATE_LOG = """
+V1.5.0
+修复带目录的文件管理器设置为默认文件管理器后，无法打开的问题
+删除部分图标，提升在XFCE上的兼容性
+
 V1.4.0
 修改带目录的文件管理器为thunar
 进一步补全Win11主题的图标，提升在XFCE上的兼容性
@@ -294,7 +298,7 @@ def install_tree_file_manager():
 # 替换为默认文件管理器
 def set_default_file_manager():
     window['-LOG-'].print('执行: 替换为默认文件管理器')
-    execute_command("xdg-mime default thunar.desktop inode/directory")
+    execute_command("xdg-mime default Thunar.desktop inode/directory")
 
 # 还原默认文件管理器
 def restore_default_file_manager():
