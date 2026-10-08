@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} {{ app_version }}</title>
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap-icons/font/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧标签栏 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h5 class="mb-0">{{ app_name }}</h5>
+                <small class="text-muted">V{{ app_version }}</small>
+            </div>
+            <div class="nav flex-column nav-pills flex-fill" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <button class="nav-link active" id="tab-apps" data-bs-toggle="pill" data-bs-target="#pane-apps" type="button" role="tab">
+                    <i class="bi bi-grid"></i> 软件组件
+                </button>
+                <button class="nav-link" id="tab-system" data-bs-toggle="pill" data-bs-target="#pane-system" type="button" role="tab">
+                    <i class="bi bi-shield-lock"></i> 系统安全
+                </button>
+                <button class="nav-link" id="tab-stores" data-bs-toggle="pill" data-bs-target="#pane-stores" type="button" role="tab">
+                    <i class="bi bi-shop"></i> 应用商店
+                </button>
+                <button class="nav-link" id="tab-themes" data-bs-toggle="pill" data-bs-target="#pane-themes" type="button" role="tab">
+                    <i class="bi bi-palette"></i> 美化定制
+                </button>
+                <button class="nav-link" id="tab-desktop" data-bs-toggle="pill" data-bs-target="#pane-desktop" type="button" role="tab">
+                    <i class="bi bi-display"></i> 桌面与菜单
+                </button>
+                <button class="nav-link" id="tab-services" data-bs-toggle="pill" data-bs-target="#pane-services" type="button" role="tab">
+                    <i class="bi bi-gear"></i> 系统服务
+                </button>
+                <button class="nav-link" id="tab-packages" data-bs-toggle="pill" data-bs-target="#pane-packages" type="button" role="tab">
+                    <i class="bi bi-box"></i> 软件包安装
+                </button>
+                <button class="nav-link mt-auto" id="tab-about" data-bs-toggle="pill" data-bs-target="#pane-about" type="button" role="tab">
+                    <i class="bi bi-info-circle"></i> 关于
+                </button>
+            </div>
+        </nav>
+
+        <!-- 右侧主内容区 -->
+        <div class="main-wrapper">
+            <main class="content">
+                <div class="tab-content h-100" id="v-pills-tabContent">
+                    
+                    <!-- 软件组件 -->
+                    <div class="tab-pane fade show active" id="pane-apps" role="tabpanel">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-window"></i> 文件关联
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <h6>.exe 文件双击打开</h6>
+                                        <p class="text-muted small">选择安装 Deepin-Wine 或 Wine 来打开 Windows 程序。</p>
+                                        <button class="btn btn-primary btn-sm" onclick="showExeHandlerModal()">
+                                            <i class="bi bi-window-plus"></i> 设置 .exe 打开方式
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>.apk 文件双击安装</h6>
+                                        <p class="text-muted small">将 Android 应用安装包关联到 UEngine。</p>
+                                        <button class="btn btn-primary btn-sm" onclick="doAction('set_apk_handler')">
+                                            <i class="bi bi-phone"></i> 设置 .apk 打开方式
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-folder-fill"></i> 文件管理器
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">选择要安装的文件管理器：</p>
+                                <div class="inline-radio-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="fm_type" id="fm_thunar" checked>
+                                        <label class="form-check-label" for="fm_thunar">Thunar（推荐，功能完整）</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="fm_type" id="fm_pcmanfm" value="pcmanfm">
+                                        <label class="form-check-label" for="fm_pcmanfm">PCManFM（轻量快速）</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="fm_type" id="fm_nemo" value="nemo">
+                                        <label class="form-check-label" for="fm_nemo">Nemo（Cinnamon 桌面）</label>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button class="btn btn-primary me-2" onclick="installSelectedFM()">
+                                    <i class="bi bi-download"></i> 安装所选文件管理器
+                                </button>
+                                <button class="btn btn-outline-primary me-2" onclick="setSelectedFMDefault()">
+                                    <i class="bi bi-check-circle"></i> 设为默认
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="doAction('restore_default_fm')">
+                                    <i class="bi bi-arrow-counterclockwise"></i> 还原默认
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-hdd-network"></i> Wine 磁盘
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-primary me-2" onclick="doAction('set_wine_c')">
+                                    <i class="bi bi-mount"></i> 挂载 Wine C 盘
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="doAction('unset_wine_c')">
+                                    <i class="bi bi-eject"></i> 卸载 Wine C 盘
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-people"></i> 多电脑共享
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-primary me-2" onclick="doAction('install_shared_input')">
+                                    <i class="bi bi-arrow-left-right"></i> 安装 Barrier（键鼠共享）
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="doAction('install_multi_screen')">
+                                    <i class="bi bi-display"></i> 副屏 App（SpaceDesk）
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-steam"></i> Steam
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">安装 Steam 便携版，解决 UOS 安装 Steam 的各种缺库问题。</p>
+                                <button class="btn btn-primary" onclick="doAction('install_steam')">
+                                    <i class="bi bi-download"></i> 安装 Steam 便携版
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统安全 -->
+                    <div class="tab-pane fade" id="pane-system" role="tabpanel">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-shield-lock"></i> 内核版本管理
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">锁定内核版本可防止系统更新时自动更换内核，适合需要稳定环境的用户。</p>
+                                <button class="btn btn-primary me-2" onclick="doAction('lock_kernel')">
+                                    <i class="bi bi-lock"></i> 锁定内核版本
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="doAction('unlock_kernel')">
+                                    <i class="bi bi-unlock"></i> 解锁内核版本
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 应用商店 -->
+                    <div class="tab-pane fade" id="pane-stores" role="tabpanel">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-shop"></i> 应用商店
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <h6>星火应用商店</h6>
+                                        <p class="text-muted small">一键安装星火应用商店。</p>
+                                        <button class="btn btn-primary btn-sm" onclick="doAction('install_spark_store')">
+                                            <i class="bi bi-download"></i> 安装星火应用商店
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Flatpak 商店</h6>
+                                        <p class="text-muted small">添加 Flatpak 应用商店快捷方式。</p>
+                                        <button class="btn btn-primary btn-sm" onclick="doAction('add_flat_store')">
+                                            <i class="bi bi-plus-circle"></i> 添加 Flatpak 商店图标
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <h6>AppImage 商店</h6>
+                                        <p class="text-muted small">安装 AppImagePool 应用商店。</p>
+                                        <button class="btn btn-primary btn-sm" onclick="doAction('add_appimage_store')">
+                                            <i class="bi bi-plus-circle"></i> 添加 AppImage 商店图标
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-list-ul"></i> 软件源管理
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">选择系统 APT 软件源，切换后需要更新软件包列表。</p>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <div class="btn-group" role="group" aria-label="APT 软件源">
+                                        <button type="button" class="btn btn-outline-primary" onclick="doAction('set_apt_source', {source: 'uos20'})">UOS 官方源</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="doAction('set_apt_source', {source: 'deepin20'})">Deepin 官方源</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="doAction('set_apt_source', {source: 'tsinghua'})">清华源</button>
+                                    </div>
+                                    <button class="btn btn-success" onclick="doAction('update_package_list')">
+                                        <i class="bi bi-arrow-clockwise"></i> 更新软件包列表
+                                    </button>
+                                </div>
+                                <hr>
+                                <p class="text-muted">切换 PIP 镜像源。</p>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <div class="btn-group" role="group" aria-label="PIP 镜像源">
+                                        <button type="button" class="btn btn-outline-primary" onclick="doAction('set_pip_source', {source:'tsinghua'})">清华源</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="doAction('set_pip_source', {source:'aliyun'})">阿里云源</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="doAction('set_pip_source', {source:'douban'})">豆瓣源</button>
+                                    </div>
+                                    <button type="button" class="btn btn-success" onclick="doAction('set_pip_source', {source:'default'})">
+                                        <i class="bi bi-arrow-clockwise"></i> 恢复官方源
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 美化定制 -->
+                    <div class="tab-pane fade" id="pane-themes" role="tabpanel">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-palette"></i> 主题与字体
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-primary me-2" onclick="doAction('install_win_theme')">
+                                    <i class="bi bi-palette"></i> 安装 Windows 11 主题
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="doAction('install_win_fonts')">
+                                    <i class="bi bi-fonts"></i> 安装 Windows 字体
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-sun"></i> 亮度调节
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">安装亮度调节工具后可通过滑块调节。</p>
+                                <div class="d-flex align-items-center gap-3">
+                                    <input type="range" class="form-range" id="brightnessSlider" min="30" max="100" value="65" style="max-width: 300px;">
+                                    <span id="brightnessValue" class="badge bg-secondary">65%</span>
+                                    <button class="btn btn-primary btn-sm" onclick="setBrightness()">
+                                        <i class="bi bi-check"></i> 设置
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="doAction('install_brightness')">
+                                        <i class="bi bi-download"></i> 安装 brightnessctl
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-windows"></i> Windows 风格磁盘
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-primary me-2" onclick="doAction('set_win_disk')">
+                                    <i class="bi bi-mount"></i> 挂载 Windows 风格磁盘
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="doAction('unset_win_disk')">
+                                    <i class="bi bi-eject"></i> 卸载 Windows 风格磁盘
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 桌面与菜单 -->
+                    <div class="tab-pane fade" id="pane-desktop" role="tabpanel">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-link-45deg"></i> 创建快捷方式
+                            </div>
+                            <div class="card-body">
+                                <form id="shortcutForm" class="form-stack">
+                                    <div>
+                                        <label class="form-label">图标名称</label>
+                                        <input type="text" class="form-control" id="sc_name" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">选择程序</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="sc_exec" required>
+                                            <button class="btn btn-outline-secondary" type="button" onclick="pickFile('sc_exec', '')">
+                                                <i class="bi bi-folder2-open"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">软件图标</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="sc_icon">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="pickIcon('sc_icon')">
+                                                <i class="bi bi-palette"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">启动参数</label>
+                                        <input type="text" class="form-control" id="sc_args" value="%U">
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="sc_sudo">
+                                        <label class="form-check-label" for="sc_sudo">以管理员权限运行</label>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">目标位置</label>
+                                        <div class="inline-radio-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="sc_location" id="sc_desktop" value="desktop" checked>
+                                                <label class="form-check-label" for="sc_desktop">桌面</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="sc_location" id="sc_applist" value="applist">
+                                                <label class="form-check-label" for="sc_applist">应用程序菜单</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary" type="button" onclick="createShortcut()">
+                                            <i class="bi bi-plus-circle"></i> 创建快捷方式
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="manageShortcuts('desktop')">
+                                            <i class="bi bi-folder"></i> 管理桌面图标
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="manageShortcuts('applist')">
+                                            <i class="bi bi-folder"></i> 管理应用图标
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-menu-button-wide"></i> 右键菜单
+                            </div>
+                            <div class="card-body">
+                                <form id="menuForm" class="form-stack">
+                                    <div>
+                                        <label class="form-label">菜单名称</label>
+                                        <input type="text" class="form-control" id="cm_name" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">执行命令</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="cm_command" required>
+                                            <button class="btn btn-outline-secondary" type="button" onclick="pickFile('cm_command', '')">
+                                                <i class="bi bi-folder2-open"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">图标路径</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="cm_icon">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="pickIcon('cm_icon')">
+                                                <i class="bi bi-palette"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">菜单类型</label>
+                                        <div class="inline-radio-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="cm_type" id="cm_file" checked>
+                                                <label class="form-check-label" for="cm_file">文件菜单</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="cm_type" id="cm_dir" value="directory">
+                                                <label class="form-check-label" for="cm_dir">文件夹/背景菜单</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">目标位置</label>
+                                        <div class="inline-radio-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="cm_location" id="cm_user" checked>
+                                                <label class="form-check-label" for="cm_user">仅当前用户</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="cm_location" id="cm_system" value="system">
+                                                <label class="form-check-label" for="cm_system">所有用户</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary" type="button" onclick="createContextMenu()">
+                                            <i class="bi bi-plus-circle"></i> 创建右键菜单
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="manageContextMenus()">
+                                            <i class="bi bi-folder"></i> 管理右键菜单
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统服务 -->
+                    <div class="tab-pane fade" id="pane-services" role="tabpanel">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-gear"></i> 系统服务
+                            </div>
+                            <div class="card-body">
+                                <form id="serviceForm" class="form-stack">
+                                    <div>
+                                        <label class="form-label">服务名称</label>
+                                        <input type="text" class="form-control" id="sv_name" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">执行命令</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="sv_command" required>
+                                            <button class="btn btn-outline-secondary" type="button" onclick="pickFile('sv_command', '')">
+                                                <i class="bi bi-folder2-open"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">重启间隔</label>
+                                        <input type="text" class="form-control" id="sv_restart" value="5">
+                                    </div>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button class="btn btn-primary" type="button" onclick="createService()">
+                                            <i class="bi bi-plus-circle"></i> 创建服务
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="doAction('start_service', {name: document.getElementById('sv_name').value})">
+                                            <i class="bi bi-play"></i> 启动服务
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="doAction('edit_service', {name: document.getElementById('sv_name').value})">
+                                            <i class="bi bi-pencil"></i> 编辑服务文件
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="doAction('read_log', {name: document.getElementById('sv_name').value})">
+                                            <i class="bi bi-journal-text"></i> 读取日志
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="doAction('manage_services')">
+                                            <i class="bi bi-list"></i> 管理服务
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 软件包安装 -->
+                    <div class="tab-pane fade" id="pane-packages" role="tabpanel">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <i class="bi bi-box"></i> 软件包管理
+                            </div>
+                            <div class="card-body">
+                                <form id="packageForm" class="form-stack">
+                                    <div>
+                                        <label class="form-label">选择软件包</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="pkg_path" placeholder="YPK / TAR 文件路径">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="pickFile('pkg_path', '.ypk,.tar,.tar.gz,.tar.bz2')">
+                                                <i class="bi bi-folder2-open"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="pkg_isolate" checked>
+                                        <label class="form-check-label" for="pkg_isolate">隔离模式（虚拟环境）</label>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-success" type="button" onclick="installPackage()">
+                                            <i class="bi bi-download"></i> 安装
+                                        </button>
+                                        <button class="btn btn-danger" type="button" onclick="uninstallPackage()">
+                                            <i class="bi bi-trash"></i> 卸载
+                                        </button>
+                                    </div>
+                                </form>
+                                <div class="mt-3">
+                                    <h6>支持格式</h6>
+                                    <ul class="list-unstyled text-muted small">
+                                        <li><i class="bi bi-check"></i> YPK 格式（双模式安装）</li>
+                                        <li><i class="bi bi-check"></i> TAR / TAR.GZ / TAR.BZ2</li>
+                                        <li><i class="bi bi-check"></i> 支持递归嵌套压缩包</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 关于 -->
+                    <div class="tab-pane fade h-100" id="pane-about" role="tabpanel">
+                        <div class="row g-3 h-100">
+                            <div class="col-md-4 h-100">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <div class="display-1 text-primary mb-3">
+                                            <i class="bi bi-wrench"></i>
+                                        </div>
+                                        <h4>{{ app_name }}</h4>
+                                        <p class="text-muted">版本 {{ app_version }}</p>
+                                        <hr>
+                                        <p class="mb-0"><strong>作者:</strong> 御坂初琴</p>
+                                        <p class="mb-0"><strong>版权:</strong> © 2025 御坂初琴软件屋</p>
+                                        <hr>
+                                        <button class="btn btn-primary w-100" onclick="doAction('add_desktop_icon')">
+                                            <i class="bi bi-star"></i> 添加桌面图标
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8 h-100">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <i class="bi bi-journal-text"></i> 更新日志
+                                    </div>
+                                    <div class="card-body h-100">
+                                        <pre class="bg-light p-3 rounded small h-100" style="overflow-y: auto; white-space: pre-wrap;">{{ update_log }}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- 右侧日志面板 -->
+            <aside class="log-panel" id="logPanel">
+                <div class="log-header" onclick="toggleLogPanel()">
+                    <span class="log-title"><i class="bi bi-terminal"></i> 运行日志</span>
+                    <span class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-secondary" id="logToggleBtn" onclick="event.stopPropagation(); toggleLogPanel()">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation(); clearLogs()">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </span>
+                </div>
+                <div class="log-content" id="logContent">
+                    <div class="log-line">系统准备就绪...</div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- EXE 打开方式选择模态窗 -->
+    <div class="modal fade" id="exeHandlerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">选择 Wine 版本</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">请选择要安装的 Wine 版本：</p>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="chooseExeHandler('deepin')">
+                            <i class="bi bi-check-circle"></i> Deepin-Wine（更现代）
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="chooseExeHandler('wine')">
+                            <i class="bi bi-check-circle"></i> Wine（兼容性更好）
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 错误提示模态窗 -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> 提示</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorModalMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认操作模态窗 -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> 确认操作</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmModalMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirmModalConfirmBtn">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注销提示模态窗 -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title"><i class="bi bi-box-arrow-right"></i> 需要注销</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="logoutModalMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">稍后注销</button>
+                    <button type="button" class="btn btn-primary" onclick="doLogout()">立即注销</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成功提示模态框 -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-check-circle"></i> 执行成功</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="successModalMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

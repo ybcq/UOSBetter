@@ -1,7 +1,21 @@
-Copy2Projects.sh
-data/appImages/Steam.AppImage
+# ==================== Python ====================
 __pycache__/
 models/__pycache__/
 models/PySimpleGUI/__pycache__/
-AGENTS.md
+.venv
+.kilo
+
+# ==================== 日志与备份 ====================
+*.log
+*.bak*
+*.backup
+*.backup2
+
+# ==================== 项目临时文件 ====================
 .tempfile/
+
+# ==================== 项目特定文件/目录 ====================
+Copy2Projects.sh
+AGENTS.md
+Version/
+data/appImages/Steam.AppImage

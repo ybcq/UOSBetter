@@ -2,305 +2,219 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)
-![Python](https://img.shields.io/badge/python-3.6+-green.svg)
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Platform](https://img.shields.io/badge/platform-UOS%20%7C%20Ubuntu%20%7C%20Debian-red.svg)
 
-一款专为 UOS (UnionTech OS) 和其他 Debian 系 Linux 发行版设计的系统优化工具，提供图形化界面，让系统配置、软件安装和管理任务更加简单便捷。
+一款专为 UOS (UnionTech OS) 和其他 Debian 系 Linux 发行版设计的系统优化工具。
+**2.0 版本全面重构为 Web 应用**，通过浏览器访问本地 Flask 服务，左侧标签栏 + 右侧内容页布局，操作更便捷。
 
 **作者：御坂初琴**
 
 </div>
 
-## 📸 界面预览
+## ✨ 2.0 新特性
 
-### 标签页1：安全优化与组件
-![安全优化与组件](pictures/MainTab1.png)
-
-### 标签页2：桌面与菜单
-![桌面与菜单](pictures/MainTab2.png)
-
-### 标签页3：系统级自启服务
-![系统级自启服务](pictures/MainTab3.png)
-
-## ✨ 功能特性
-
-### 🔒 安全与组件
-- **内核版本管理**：锁定/解锁内核版本，防止误操作导致系统不稳定
-- **软件源管理**：一键更新应用版本列表
-- **文件关联设置**：
-  - 双击直接打开 `.exe` 文件（基于 Deepin-Wine）
-  - 双击直接安装 `.apk` 文件（基于 UEngine）
-- **多屏支持**：安装副屏应用（SpaceDesk）
-- **键鼠共享**：安装 Barrier 实现多电脑共享键鼠
-- **游戏支持**：安装 Steam 便携版，解决缺库问题
-- **Wine磁盘管理**：将 Wine C 盘挂载为虚拟磁盘，方便文件访问
-
-  ![Wine磁盘](pictures/WineDisk.png)
-
-- **Windows风格磁盘**：将系统目录映射为 Windows 风格的磁盘结构
-
-  ![Windows风格磁盘](pictures/WinLike.png)
-
-- **文件管理器增强**：安装带目录树的 Thunar 文件管理器
-
-  ![文件管理器目录树](pictures/FileTree.png)
-
-### 🏪 应用商店
-- **星火应用商店**：一键安装星火应用商店
-- **PIP源优化**：自动切换为清华大学镜像源
-- **Flatpak商店**：添加 Flatpak 应用商店快捷方式
-- **AppImage商店**：安装 AppImagePool 应用商店
-
-### 🎨 美化定制
-- **Windows主题**：安装 Windows 11 风格主题
-
-  ![Windows图标效果](pictures/WinIcon1.png)
-  ![更具辨识度的文件类型图标](pictures/WinIcon2.png)
-
-- **Windows字体**：安装微软雅黑等常用字体
-
-- **亮度调节**：安装遮罩亮度调节工具
-
-### 🖥️ 桌面与菜单
-- **快捷方式创建**：轻松创建桌面和应用程序菜单快捷方式
-- **右键菜单定制**：自定义文件和文件夹的右键菜单项
-- **图标管理**：管理系统和用户级应用图标
-
-### ⚙️ 系统服务
-- **开机自启服务**：创建和管理 systemd 系统服务
-- **服务管理**：启动、停止、查看服务日志
-- **服务编辑**：手动编辑服务配置文件
-
-### 📦 软件包管理
-- **YPK 包管理**：支持 YPK 格式软件的安装和卸载（LOCAL/虚拟环境双模式）
-- **TAR 包管理**：支持 TAR、TAR.GZ、TAR.BZ2 格式软件的智能安装
-- **GitHub Releases下载**：支持从 GitHub releases 在线下载软件，带进度显示
+- **Web 界面**：基于 Flask 的本地服务，浏览器访问 `http://127.0.0.1:55000`，告别原生 GUI 依赖
+- **左侧标签栏**：系统安全、软件组件、应用商店、美化定制、桌面与菜单、服务与软件包
+- **实时日志流**：SSE 推送，操作日志实时滚动显示
+- **权限提升优化**：不再需要全局 sudo 启动，仅在需要管理员权限时临时唤醒 `pkexec`
+- **脚本全部 Python 化**：原 shell 脚本功能已全部迁移到 `models/` 模块
+- **图标动态生成**：删除 `data/desktops/` 静态文件，所有 `.desktop` 文件即时创建
+- **离线可用**：所有静态资源（Bootstrap、图标）均本地化，无需网络连接即可使用完整功能
+- **清晰反馈**：成功/失败操作均有对应颜色的模态框提示，成功为绿色检查图标，失败为红色警告图标
+- **AppImage 目录迁移**：默认安装到 `~/.local/share/UOSBetter/appimages/`，避免权限问题
 
 ## 📋 系统要求
 
 - **操作系统**：UOS 20 / Deepin 20 / Ubuntu / Debian / GXDE / AnduinOS / Raspbian 等 Debian 系发行版
-- **Python版本**：Python 3.6 或更高版本
-- **权限要求**：需要管理员权限（sudo）运行以使用完整功能
-- **依赖库**：PySimpleGUI、requests
+- **Python版本**：Python 3.8 或更高版本
+- **依赖库**：Flask, requests
+- **权限**：首次运行需安装依赖，运行时一般无需 sudo
 
 ## 🚀 快速开始
 
 ### 环境准备
 
 ```bash
-# 克隆或下载项目
 cd /path/to/UOSBetter
 
 # 创建并激活虚拟环境（推荐）
 python3 -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-.venv\Scripts\activate     # Windows
+source .venv/bin/activate  # Linux
 ```
 
 ### 安装依赖
 
 ```bash
-pip install pysimplegui-4-foss requests
+pip install -r requirements.txt
+# 或手动安装
+pip install flask requests
 ```
 
 ### 运行程序
 
+**方式一：直接启动**
 ```bash
-# 使用管理员权限运行以使用完整功能
-sudo python3 UOSBetter.py
+python3 app.py
 ```
+
+**方式二：使用包装脚本（推荐）**
+```bash
+python3 UOSBetter.py
+```
+包装脚本会自动检查服务是否已在运行，若未运行则自动启动并打开浏览器访问 `http://127.0.0.1:55000`。
 
 ### 添加桌面图标
 
-在程序主界面点击「添加UOS优化大师桌面图标」按钮，即可在桌面和应用程序菜单中创建快捷方式。
+在「关于」标签页点击「添加 UOSBetter 桌面图标」按钮，即可在桌面和应用程序菜单中创建快捷方式。创建的图标将指向包装脚本 `UOSBetter.py`，确保双击图标时能够正确启动服务并打开浏览器。
 
-## 📖 使用说明
+## 📖 功能说明
 
-### 安全优化与组件
+### 🔒 系统安全
+- **内核版本管理**：锁定/解锁内核版本，防止误操作导致系统不稳定
+- **软件源管理**：一键切换 UOS 官方源、深度源、清华源
+- **更新软件包列表**：刷新 apt 缓存
 
-1. **锁定内核版本**：防止系统更新时自动更换内核，适合需要稳定环境的用户
-2. **设置.exe文件关联**：点击后，找一个exe文件右键选择默认程序，找到Deepin-Wine即可
-3. **安装Steam便携版**：解决UOS安装Steam时各种缺库弹窗问题
+### 🧩 软件组件
+- **文件关联设置**：双击直接打开 `.exe` 文件（基于 Deepin-Wine / Wine）、双击安装 `.apk` 文件
+- **文件管理器**：安装 Thunar 并设为默认
+- **磁盘挂载**：挂载/卸载 Wine C 盘、Windows 风格系统盘盘符
+- **多屏支持**：安装副屏应用（SpaceDesk）
+- **键鼠共享**：安装 Barrier 实现多电脑共享键鼠
+- **游戏支持**：安装 Steam 便携版，解决缺库问题
 
-### 桌面与菜单
+### 🏪 应用商店
+- **星火应用商店**：一键安装
+- **PIP源优化**：自动切换为清华大学镜像源
+- **Flatpak商店**：添加 Flatpak 应用商店快捷方式
+- **AppImage商店**：安装 AppImagePool 应用商店
 
-1. **创建快捷方式**：
-   - 填写图标名称
-   - 选择程序路径
-   - 选择图标（支持系统图标）
-   - 选择目标位置（桌面/应用程序菜单）
-   - 点击「创建」
+### 🎨 美化定制
+- **Windows主题**：安装 Windows 11 风格主题和图标
+- **Windows字体**：安装微软雅黑等常用字体
+- **亮度调节**：安装 brightnessctl，通过滑块实时调节屏幕亮度
 
-2. **创建右键菜单**：
-   - 填写菜单名称
-   - 填写执行命令
-   - 选择菜单类型（文件/文件夹）
-   - 选择作用范围（当前用户/所有用户）
+### 🖥️ 桌面与菜单
+- **快捷方式创建**：轻松创建桌面和应用程序菜单快捷方式
+- **右键菜单定制**：自定义文件和文件夹的右键菜单项
+- **图标管理**：管理系统和用户级应用图标
 
-### 系统级自启服务
-
-1. **创建服务**：
-   - 填写服务名称
-   - 填写执行命令
-   - 设置重启间隔
-   - 点击「创建」
-
-2. **管理服务**：
-   - 点击「手动启动服务」启动并设置开机自启
-   - 点击「读取日志」查看服务运行日志
-
-### 软件包管理
-
-#### YPK 包管理
-```bash
-# 安装 YPK 包
-python3 models/InstallYPK.py package.ypk
-
-# LOCAL 模式卸载
-python3 models/InstallYPK.py package.ypk uninstall
-
-# 虚拟环境模式卸载
-python3 models/InstallYPK.py package.ypk uninstall_safe
-```
-
-#### TAR 包管理
-```bash
-# 安装 TAR 包
-python3 models/InstallTAR.py software.tar.gz
-```
-
-#### GitHub Releases 下载
-- 支持从 GitHub releases 在线下载最新版软件
-- 实时显示下载进度
-- 自动创建桌面和开始菜单图标
+### ⚙️ 服务与软件包
+- **开机自启服务**：创建和管理 systemd 系统服务
+- **服务管理**：启动、停止、查看服务日志
+- **软件包管理**：支持 YPK、TAR、TAR.GZ、TAR.BZ2 格式安装卸载
 
 ## 📁 项目结构
 
 ```
 UOSBetter/
-├── UOSBetter.py              # 主程序文件，GUI界面和事件处理
-├── README.md                 # 项目说明文档
-├── models/                   # 核心功能模块
-│   ├── InstallYPK.py        # YPK 软件包安装/卸载
-│   ├── InstallTAR.py        # TAR 软件包安装
-│   ├── GetRelease.py        # GitHub releases 下载管理
-│   └── PySimpleGUI.py       # GUI 库本地副本
-├── documents/               # 项目文档
-│   ├── YPK文件结构解析.md
-│   ├── YPK文件安装(虚拟环境方案).md
-│   ├── YPK文件安装(LOCAL方案).md
-│   └── TAR文件安装(复合方案).md
-├── data/                    # 数据文件
-│   ├── apks/                # APK应用包
+├── app.py                      # Flask 主程序入口
+├── templates/
+│   └── index.html              # 主页面模板
+├── static/
+│   ├── css/style.css           # 样式文件
+│   ├── js/app.js               # 前端交互脚本
+│   └── vendor/                 # 本地静态资源（离线使用）
+│       ├── bootstrap/          # Bootstrap 5.3 CSS/JS
+│       └── bootstrap-icons/    # Bootstrap Icons 字体
+├── UOSBetter.py                # 包装启动脚本（推荐）
+├── models/                     # 核心功能模块
+│   ├── utils.py               # 工具函数
+│   ├── privilege.py           # pkexec 权限提升
+│   ├── system.py              # 系统管理（内核、软件源、磁盘、美化）
+│   ├── apps.py                # 应用管理（商店、Wine、Steam、Barrier）
+│   ├── desktop.py             # 桌面图标与菜单动态生成
+│   ├── services.py            # systemd 服务管理
+│   ├── packages.py            # YPK / TAR 软件包管理
+│   ├── InstallYPK.py          # YPK 包管理核心（保留兼容）
+│   ├── InstallTAR.py          # TAR 包管理核心（保留兼容）
+│   └── GetRelease.py          # GitHub 下载管理（保留兼容）
+├── documents/                  # 项目文档
+├── data/
+│   ├── apks/                   # APK 应用包
 │   │   └── SpaceDesk.apk
-│   ├── appImages/           # AppImage应用
+│   ├── appImages/              # AppImage 应用
 │   │   └── AppImagePool.AppImage
-│   ├── desktops/            # 桌面快捷方式
-│   │   ├── appimage.desktop
-│   │   ├── flatpak.desktop
-│   │   └── steam.desktop
-│   ├── scripts/             # 安装脚本
-│   │   ├── APT-Deepin20.sh
-│   │   ├── APT-TsingHua.sh
-│   │   ├── APT-UOS20.sh
-│   │   ├── Deepin-Wine.sh
-│   │   ├── Wine-Disk.sh
-│   │   ├── Wine.sh
-│   │   └── Win-Like.sh
-│   └── themes/              # 主题文件
+│   └── themes/                 # 主题文件
 │       └── win11theme.tar
-├── .venv/                   # Python 虚拟环境
-└── bak/                     # 备份文件目录
+├── requirements.txt            # Python 依赖
+├── README.md                   # 项目说明
+└── .venv/                      # Python 虚拟环境
 ```
 
-## 🔧 核心模块详解
+## 🔧 核心模块说明
 
-### InstallYPK.py - YPK 包管理器
-- **功能**：处理 YPK (Ylmf OS Package) 格式软件的安装和卸载
-- **安装模式**：
-  - **LOCAL 模式**：安装到 `/usr/local/` 等系统目录，需要 root 权限
-  - **虚拟环境模式**：安装到 `~/.local/share/apps/{appname}/`，用户权限即可
-- **安全特性**：临时目录隔离、文件过滤、关键文件保护
+### privilege.py - 权限提升
+- 使用 `pkexec` 进行临时权限提升
+- 检测是否已 root，避免重复提权
+- 统一封装命令执行接口
 
-### InstallTAR.py - TAR 包管理器
-- **功能**：处理 TAR、TAR.GZ、TAR.BZ2 格式软件的安装
-- **安装策略**：
-  - **脚本安装模式**：检测到 `INSTALL` 文件时直接运行
-  - **手动安装模式**：复制到 `/opt/` 并创建快捷方式
-- **特性**：支持多层嵌套压缩包、自动创建快捷方式
+### system.py - 系统管理
+- 原 `data/scripts/` 中所有 shell 脚本已转换为 Python 函数
+- 软件源切换、内核锁定、磁盘挂载、亮度调节等
 
-### GetRelease.py - GitHub Releases 下载管理
-- **功能**：从 GitHub releases 下载文件，支持进度显示
-- **特性**：进度回调、错误恢复、断点续传、文件大小人性化显示
+### desktop.py - 桌面图标
+- 动态生成 `.desktop` 文件内容
+- 支持系统图标自动复制到用户目录
+- 创建快捷方式、右键菜单项
 
-## 🔄 更新日志
+## ⚠️ 注意事项
 
-### v1.5.0
+1. 部分功能（如安装软件、修改系统配置）需要管理员权限，程序会自动弹出 `pkexec` 认证窗口
+2. 锁定内核版本后可能无法更新显卡驱动，请根据需要谨慎使用
+3. 安装 Windows 主题和字体后需要注销重新登录才能生效
+4. 右键菜单功能需要重启文件管理器才能生效
+5. YPK 包的虚拟环境模式更安全，LOCAL 模式系统集成度更高
+
+## 📝 更新日志
+
+### V2.0.0
+- 全面重构为 Flask Web 应用，浏览器访问本地服务
+- 左侧标签栏 + 右侧内容页布局
+- 移除 PySimpleGUI 依赖
+- 所有脚本功能改为 Python 实现
+- 使用 pkexec 进行权限提升，无需全局 sudo
+- AppImage 默认目录迁移至 ~/.local/share/UOSBetter/appimages/
+- 桌面图标改为动态生成，删除 desktops 文件夹
+- 实时日志流显示
+- 重新规划标签页：系统安全、软件组件、应用商店、美化定制、桌面与菜单、服务与软件包
+
+### V1.5.0
 - 修复带目录的文件管理器设置为默认文件管理器后，无法打开的问题
-- 删除部分图标，提升在 XFCE 上的兼容性
+- 删除部分图标，提升在XFCE上的兼容性
 
-### v1.4.0
-- 修改带目录的文件管理器为 Thunar
-- 进一步补全 Win11 主题的图标，提升在 XFCE 上的兼容性
+### V1.4.0
+- 修改带目录的文件管理器为thunar
+- 进一步补全Win11主题的图标，提升在XFCE上的兼容性
 
-### v1.3.0
-- 修改带目录的文件管理器为 PCManFM（原 Nemo）
-- 增加挂载 Wine 的 C 盘为盘符功能
-- 增加系统盘显示为 Windows 风格文件夹的功能
-- 增加 Wine C 盘和 Windows 风格磁盘的卸载功能
+### V1.3.0
+- 修改带目录的文件管理器为PCManFM
+- 增加挂载Wine的C盘为盘符功能
+- 增加系统盘显示为Windows风格文件夹的功能
+- 双击打开.exe文件支持选择安装Deepin-Wine或Wine
+- 安装Wine时自动安装常用字体
 
-### v1.2.0
+### V1.2.0
 - 修复了创建的图标启动目录为桌面的问题
 - 主题中增加了压缩包和NEMO的图标
 - 修改复制操作的原文件为绝对地址
 
-### v1.1.0
-- 新增 YPK 和 TAR 软件包管理功能
-- 新增 GitHub releases 在线下载功能
+### V1.1.0
+- 增加了TAR等格式的绿色软件的安装卸载功能
+- Steam改为在线获取，大幅缩小软件体积
 
-### v1.0.0
-- 首次发布
-- 支持 Debian 系的其他系统（如 Ubuntu、GXDE、AnduinOS、Raspbian 等）
-- 完善的虚拟环境支持和安全机制
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-### 开发规范
-- 使用中文注释和文档字符串
-- 函数命名采用小写加下划线
-- 类命名采用大驼峰
-- 完整的异常处理和错误日志
-
-### 添加新功能
-1. 在 `models/` 目录创建新的安装模块
-2. 实现对应的功能函数
-3. 在 `UOSBetter.py` 中导入和集成
-4. 更新文档说明
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
-
-## ⚠️ 注意事项
-
-1. 部分功能需要管理员权限，请使用 `sudo` 运行程序
-2. 锁定内核版本后可能无法更新显卡驱动，请根据需要谨慎使用
-3. 安装Windows主题和字体后需要注销重新登录才能生效
-4. 右键菜单功能需要重启文件管理器才能生效
-5. YPK 包的虚拟环境模式更安全，LOCAL 模式系统集成度更高
-6. 临时文件会自动清理，不用担心磁盘空间问题
+### V1.0.0
+- 部分功能支持Debian系的其他系统
+- 比如Ubuntu，GXDE，AnduinOS，Raspbian等
 
 ## 📮 联系方式
 
 如有问题或建议，欢迎通过以下方式联系：
-
-- 提交 [Issue](../../issues)
+- 提交 Issue
 - 查看项目文档：`documents/` 目录
-- 运行日志：程序界面的实时日志输出
+- 运行日志：Web 界面底部的实时日志输出
 
 ---
 

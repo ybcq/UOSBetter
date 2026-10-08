@@ -1,3 +1,1 @@
-name = "PySimpleGUI"
-from .PySimpleGUI import *
-from .PySimpleGUI import __version__
+# UOSBetter 2.0 Models Package
